@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Dict, List, Type, Union
 
 
 class InfoMessage:
@@ -67,21 +67,21 @@ class Training:
 class Running(Training):
     """Тренировка: бег."""
 
-    coeff_calorie_1: int = 18
-    coeff_calorie_2: int = 20
+    COEFF_CALORIE_1: int = 18
+    COEFF_CALORIE_2: int = 20
 
     def get_spent_calories(self) -> float:
         """Получение количества затраченных калорий."""
-        return(((self.coeff_calorie_1 * self.get_mean_speed()
-                - self.coeff_calorie_2) * self.weight / self.M_IN_KM
+        return(((self.COEFF_CALORIE_1 * self.get_mean_speed()
+                - self.COEFF_CALORIE_2) * self.weight / self.M_IN_KM
                 * self.duration * self.HOUR))
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
 
-    coeff_calorie_1: float = 0.035
-    coeff_calorie_2: float = 0.029
+    COEFF_CALORIE_1: float = 0.035
+    COEFF_CALORIE_2: float = 0.029
 
     def __init__(self,
                  action: int,
@@ -94,9 +94,9 @@ class SportsWalking(Training):
 
     def get_spent_calories(self) -> float:
         """Получение количества затраченных калорий."""
-        return(((self.coeff_calorie_1 * self.weight
+        return(((self.COEFF_CALORIE_1 * self.weight
                 + (Training.get_mean_speed(self)**2 // self.height)
-                * self.coeff_calorie_2 * self.weight)
+                * self.COEFF_CALORIE_2 * self.weight)
                 * (self.duration * self.HOUR)))
 
 
@@ -104,8 +104,8 @@ class Swimming(Training):
     """Тренировка: плавание."""
 
     LEN_STEP: float = 1.38
-    coeff_calorie_1: float = 1.1
-    coeff_calorie_2: float = 2
+    COEFF_CALORIE_1: float = 1.1
+    COEFF_CALORIE_2: float = 2
 
     def __init__(self,
                  action: int,
@@ -120,8 +120,8 @@ class Swimming(Training):
 
     def get_spent_calories(self) -> float:
         """Получение количества затраченных калорий."""
-        return ((self.get_mean_speed() + self.coeff_calorie_1)
-                * self.coeff_calorie_2 * self.weight)
+        return ((self.get_mean_speed() + self.COEFF_CALORIE_1)
+                * self.COEFF_CALORIE_2 * self.weight)
 
     def get_mean_speed(self) -> float:
         return (self.length_pool * self.count_pool / self.M_IN_KM
@@ -130,14 +130,14 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: List[Union[int, float]]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    type = {
+    charact: Dict[str, Type[Training]] = {
         'SWM': Swimming,
         'RUN': Running,
         'WLK': SportsWalking
     }
-    if workout_type in type.keys():
-        return type[workout_type](*data)
-    raise ValueError('Ошибка!')
+    if workout_type in charact:
+        return charact[workout_type](*data)
+    raise ValueError('Код тренировки не поддерживается!')
 
 
 def main(training: Training) -> None:
